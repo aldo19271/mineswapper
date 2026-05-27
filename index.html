@@ -2,12 +2,13 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mineswapper | Permata Pembersih Ranjau</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mineswapper Mobile | Sentuh & Main</title>
     <style>
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         body {
@@ -16,31 +17,25 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Poppins', 'Quicksand', system-ui, -apple-system, sans-serif;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
             margin: 0;
-            padding: 20px;
-            animation: bgPulse 8s infinite alternate;
-        }
-
-        @keyframes bgPulse {
-            0% { background: linear-gradient(145deg, #1a472a, #0e2a1a); }
-            100% { background: linear-gradient(145deg, #2b5e3b, #1a3a22); }
+            padding: 12px;
         }
 
         .game-container {
             background: rgba(30, 20, 15, 0.4);
             backdrop-filter: blur(3px);
-            border-radius: 64px;
-            padding: 25px 20px 20px 20px;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2);
-            transition: all 0.2s ease;
+            border-radius: 48px;
+            padding: 16px 12px 12px 12px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .game-panel {
             background: #2d211a;
-            border-radius: 48px;
-            padding: 20px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3);
+            border-radius: 40px;
+            padding: 16px;
         }
 
         .header-stats {
@@ -48,191 +43,143 @@
             justify-content: space-between;
             align-items: center;
             background: #1f1612;
-            padding: 10px 20px;
-            border-radius: 100px;
-            margin-bottom: 20px;
+            padding: 8px 16px;
+            border-radius: 60px;
+            margin-bottom: 16px;
             color: #f9e6cf;
-            text-shadow: 0 2px 2px black;
-            box-shadow: inset 0 1px 3px #3e2a20, 0 5px 8px black;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .mine-counter, .flag-counter {
             background: #000000aa;
             backdrop-filter: blur(4px);
-            padding: 8px 18px;
+            padding: 6px 14px;
             border-radius: 32px;
             font-weight: bold;
-            font-size: 1.8rem;
-            letter-spacing: 2px;
+            font-size: 1.2rem;
             font-family: monospace;
-            transition: 0.1s linear;
         }
 
         .reset-btn {
             background: #e0a82b;
             border: none;
-            font-size: 2rem;
-            width: 55px;
-            height: 55px;
+            font-size: 1.6rem;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             cursor: pointer;
-            transition: 0.2s cubic-bezier(0.2, 1.3, 0.5, 1);
-            box-shadow: 0 5px 0 #8b5a2b;
-            color: #2f1e0e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            box-shadow: 0 3px 0 #8b5a2b;
         }
 
         .reset-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #8b5a2b;
+            transform: translateY(2px);
         }
 
         .skin-selector {
             display: flex;
-            gap: 14px;
+            gap: 10px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
 
         .skin-btn {
             background: #3e2a24;
             border: none;
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 40px;
             font-weight: bold;
             color: #ffefcf;
             cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 3px 0 #1a100c;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .skin-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #1a100c;
+            font-size: 0.8rem;
         }
 
         .skin-btn.active {
             background: #f5b642;
             color: #2a180c;
-            box-shadow: 0 0 12px #ffc107;
+        }
+
+        /* ===== PERBAIKAN UTAMA: BOARD BISA SCROLL + SEL LEGA ===== */
+        .board-wrapper {
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 24px;
         }
 
         .board {
             display: grid;
-            justify-content: center;
-            gap: 2px;
+            gap: 5px;  /* JARAK ANTAR SEL = 5px (tidak dempet) */
             background-color: #50382a;
-            padding: 12px;
+            padding: 10px;
             border-radius: 28px;
-            box-shadow: inset 0 0 0 2px #2f1e12, 0 12px 18px black;
+            min-width: min-content;
         }
 
+        /* Ukuran sel: minimal 42px, bisa membesar jika layar lega */
         .cell {
-            width: 36px;
-            height: 36px;
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
             background: #b87c4f;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.3rem;
-            border-radius: 10px;
-            transition: 0.08s linear;
+            font-size: 1.2rem;
+            border-radius: 12px;
             cursor: pointer;
             box-shadow: inset 0 -2px 0 #6d3f1f, inset 0 2px 3px #ffdd99;
             font-family: monospace;
+            transition: 0.05s linear;
         }
 
-        /* skin 1: classic */
-        .skin-classic .cell {
-            background: #c6905b;
-        }
-        .skin-classic .cell.revealed {
-            background: #ebd5b3;
-            box-shadow: inset 0 0 0 1px #dbb067;
-            color: #4a2512;
-        }
-
-        /* skin 2: ocean */
-        .skin-ocean .cell {
-            background: #3f92b0;
-            box-shadow: inset 0 -2px 0 #1c5a70, inset 0 2px 3px #b3e4ff;
-        }
-        .skin-ocean .cell.revealed {
-            background: #b6e2f0;
-            color: #02455e;
+        /* Jika layar sangat sempit, sel tetap 42px (nyaman disentuh) */
+        @media (max-width: 480px) {
+            .cell {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                font-size: 1.1rem;
+            }
         }
 
-        /* skin 3: forest */
-        .skin-forest .cell {
-            background: #5f8742;
-            box-shadow: inset 0 -2px 0 #2a4f1a, inset 0 2px 3px #b8f28c;
-        }
-        .skin-forest .cell.revealed {
-            background: #cae6b2;
-            color: #1d4900;
-        }
+        /* Skin styles */
+        .skin-classic .cell { background: #c6905b; }
+        .skin-classic .cell.revealed { background: #ebd5b3; color: #4a2512; }
 
-        /* skin 4: neon */
-        .skin-neon .cell {
-            background: #2c2e6b;
-            box-shadow: inset 0 -2px 0 #151747, inset 0 2px 3px #a4adff;
-            color: #eafdff;
-        }
-        .skin-neon .cell.revealed {
-            background: #dcddff;
-            color: #2f00b3;
-            text-shadow: 0 0 2px cyan;
-        }
+        .skin-ocean .cell { background: #3f92b0; box-shadow: inset 0 -2px 0 #1c5a70; }
+        .skin-ocean .cell.revealed { background: #b6e2f0; color: #02455e; }
+
+        .skin-forest .cell { background: #5f8742; }
+        .skin-forest .cell.revealed { background: #cae6b2; color: #1d4900; }
+
+        .skin-neon .cell { background: #2c2e6b; box-shadow: inset 0 -2px 0 #151747; }
+        .skin-neon .cell.revealed { background: #dcddff; color: #2f00b3; text-shadow: 0 0 2px cyan; }
 
         .cell.flagged::before {
             content: "⚑";
             font-size: 1.5rem;
-            line-height: 1;
             display: block;
-            text-shadow: 0 1px 0 darkred;
         }
-        .cell.flagged {
-            background: #cf9f6e;
-            font-size: 0;
-        }
-        .cell.revealed.flagged::before {
-            content: "";
-        }
-        .cell.revealed {
-            cursor: default;
-            transform: scale(0.98);
-        }
-        .cell:active:not(.revealed) {
-            transform: scale(0.94);
-        }
+        .cell.flagged { background: #cf9f6e; font-size: 0; }
+        .cell.revealed.flagged::before { content: ""; }
+        .cell.revealed { cursor: default; transform: scale(0.98); }
+        .cell:active:not(.revealed) { transform: scale(0.95); }
 
         .message-area {
             text-align: center;
-            margin-top: 15px;
-            font-size: 1.1rem;
+            margin-top: 14px;
+            font-size: 0.9rem;
             font-weight: bold;
             color: #ffe5b4;
-            text-shadow: 0 2px 3px black;
-            letter-spacing: 1px;
         }
         footer {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-align: center;
-            margin-top: 14px;
+            margin-top: 12px;
             color: #d4bc8a;
-        }
-        @media (max-width: 550px) {
-            .cell { width: 30px; height: 30px; font-size: 1rem; }
-            .mine-counter, .flag-counter { font-size: 1.2rem; padding: 4px 12px; }
-            .reset-btn { width: 45px; height: 45px; font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -250,115 +197,75 @@
             <button class="skin-btn" data-skin="forest">🍃 Hutan</button>
             <button class="skin-btn" data-skin="neon">💜 Neon</button>
         </div>
-        <div id="boardContainer" class="board"></div>
-        <div class="message-area" id="gameMessage">✨ Klik petak untuk memulai! ✨</div>
-        <footer>◉ Kiri = Buka | Kanan = Pasang bendera 🚩</footer>
+        <div class="board-wrapper">
+            <div id="boardContainer" class="board"></div>
+        </div>
+        <div class="message-area" id="gameMessage">✨ Tekan lama = bendera ✨</div>
+        <footer>◉ Tekan biasa = buka | Tekan lama (½ detik) = bendera 🚩</footer>
     </div>
 </div>
 
 <script>
     (function(){
-        // ---------- KONFIGURASI ----------
-        const ROWS = 14;
-        const COLS = 18;
-        const TOTAL_MINES = 45;   // cukup menantang, lahan luas
+        // KONFIGURASI
+        const ROWS = 12;
+        const COLS = 14;
+        const TOTAL_MINES = 35;
 
-        let board = [];       // 2d: { mine, revealed, flag, neighborMines }
+        let board = [];
         let gameActive = true;
         let firstMove = true;
         let flagsPlaced = 0;
+        let pressTimer = null;
+        let audioCtx = null;
 
-        // DOM elements
         const boardDiv = document.getElementById('boardContainer');
         const minesLeftSpan = document.getElementById('minesLeft');
         const flagsUsedSpan = document.getElementById('flagsUsed');
         const resetBtn = document.getElementById('resetGameBtn');
         const messageDiv = document.getElementById('gameMessage');
 
-        // sound effects (Web Audio API - nada pendek untuk efek segar)
-        let audioCtx = null;
         function initAudio() {
             if(audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
         function playBeep(type) {
-            if(!audioCtx) {
-                initAudio();
-                if(audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-            }
             if(!audioCtx) return;
             const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.0001, now+0.5);
-            if(type === 'reveal') {
-                osc.frequency.value = 880;
-                gain.gain.setValueAtTime(0.12, now);
-                osc.frequency.exponentialRampToValueAtTime(440, now+0.2);
-            } else if(type === 'flag') {
-                osc.frequency.value = 660;
-                gain.gain.setValueAtTime(0.1, now);
-                osc.frequency.exponentialRampToValueAtTime(550, now+0.15);
-            } else if(type === 'boom') {
-                osc.type = 'sawtooth';
-                osc.frequency.value = 120;
-                gain.gain.setValueAtTime(0.25, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now+0.7);
-                osc.frequency.exponentialRampToValueAtTime(40, now+0.6);
-            } else if(type === 'win') {
-                osc.type = 'triangle';
-                osc.frequency.value = 523.25;
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now+0.9);
-                osc.frequency.exponentialRampToValueAtTime(1046.5, now+0.5);
-            } else if(type === 'reset') {
-                osc.frequency.value = 360;
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now+0.2);
-            }
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now+0.4);
+            if(type === 'reveal') { osc.frequency.value = 880; }
+            else if(type === 'flag') { osc.frequency.value = 660; }
+            else if(type === 'boom') { osc.type = 'sawtooth'; osc.frequency.value = 120; }
+            else if(type === 'win') { osc.frequency.value = 523.25; osc.frequency.exponentialRampToValueAtTime(1046.5, now+0.5); }
+            else { osc.frequency.value = 360; }
             osc.start();
-            osc.stop(now+0.5);
+            osc.stop(now+0.4);
         }
-
         function safePlay(type) {
-            try {
-                if(audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume().then(()=> playBeep(type));
-                } else {
-                    playBeep(type);
-                }
-            } catch(e) { console.log(e); }
+            if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            playBeep(type);
         }
 
-        // Inisialisasi board kosong
         function initEmptyBoard() {
             return Array(ROWS).fill().map(() => Array(COLS).fill().map(() => ({
-                mine: false,
-                revealed: false,
-                flag: false,
-                neighborMines: 0
+                mine: false, revealed: false, flag: false, neighborMines: 0
             })));
         }
 
-        // Hitung neighbor mines
         function calcNeighbors(boardData) {
             for(let i=0;i<ROWS;i++){
                 for(let j=0;j<COLS;j++){
-                    if(boardData[i][j].mine) {
-                        boardData[i][j].neighborMines = -1;
-                        continue;
-                    }
+                    if(boardData[i][j].mine) { boardData[i][j].neighborMines = -1; continue; }
                     let cnt = 0;
                     for(let di=-1;di<=1;di++){
                         for(let dj=-1;dj<=1;dj++){
                             if(di===0 && dj===0) continue;
-                            const ni = i+di, nj = j+dj;
+                            const ni=i+di, nj=j+dj;
                             if(ni>=0 && ni<ROWS && nj>=0 && nj<COLS && boardData[ni][nj].mine) cnt++;
                         }
                     }
@@ -367,7 +274,6 @@
             }
         }
 
-        // Taruh ranjau setelah first click (agar tidak kena klik pertama)
         function placeMinesExcluding(firstRow, firstCol) {
             let minesPlaced = 0;
             const newBoard = initEmptyBoard();
@@ -384,30 +290,25 @@
             return newBoard;
         }
 
-        // Reveal sel (DFS untuk area kosong)
         function revealCell(row, col) {
-            if(!gameActive) return false;
+            if(!gameActive) return;
             const cell = board[row][col];
-            if(cell.revealed) return false;
-            if(cell.flag) return false;
+            if(cell.revealed || cell.flag) return;
             if(cell.mine) {
-                // game over
                 cell.revealed = true;
                 gameActive = false;
-                messageDiv.innerHTML = "💥 BOOM! Kalah... Tekan reset untuk bermain lagi 💥";
+                messageDiv.innerHTML = "💥 BOOM! Kalah! Tekan reset 💥";
                 safePlay('boom');
                 revealAllMines();
                 updateUI();
-                return false;
+                return;
             }
-            // reveal
             cell.revealed = true;
             safePlay('reveal');
             if(cell.neighborMines === 0) {
-                // Buka area sekitar
                 for(let di=-1;di<=1;di++){
                     for(let dj=-1;dj<=1;dj++){
-                        const ni = row+di, nj = col+dj;
+                        const ni=row+di, nj=col+dj;
                         if(ni>=0 && ni<ROWS && nj>=0 && nj<COLS && !board[ni][nj].revealed && !board[ni][nj].flag && !board[ni][nj].mine){
                             revealCell(ni,nj);
                         }
@@ -416,7 +317,6 @@
             }
             updateUI();
             checkWin();
-            return true;
         }
 
         function toggleFlag(row, col) {
@@ -424,14 +324,14 @@
             const cell = board[row][col];
             if(cell.revealed) return;
             if(!cell.flag && flagsPlaced >= TOTAL_MINES) {
-                messageDiv.innerHTML = "⚠️ Bendera sudah maksimal! ⚠️";
-                setTimeout(()=> {if(gameActive) messageDiv.innerHTML = "🎯 Lanjutkan bermain!";},800);
+                messageDiv.innerHTML = "⚠️ Bendera maksimal! ⚠️";
                 return;
             }
             if(!cell.flag) {
                 cell.flag = true;
                 flagsPlaced++;
                 safePlay('flag');
+                if(navigator.vibrate) navigator.vibrate(30);
             } else {
                 cell.flag = false;
                 flagsPlaced--;
@@ -442,52 +342,38 @@
         }
 
         function revealAllMines() {
-            for(let i=0;i<ROWS;i++){
-                for(let j=0;j<COLS;j++){
+            for(let i=0;i<ROWS;i++)
+                for(let j=0;j<COLS;j++)
                     if(board[i][j].mine) board[i][j].revealed = true;
-                }
-            }
         }
 
         function checkWin() {
             let allSafeRevealed = true;
-            for(let i=0;i<ROWS;i++){
-                for(let j=0;j<COLS;j++){
-                    const cell = board[i][j];
-                    if(!cell.mine && !cell.revealed) {
-                        allSafeRevealed = false;
-                        break;
-                    }
-                }
-            }
+            for(let i=0;i<ROWS;i++)
+                for(let j=0;j<COLS;j++)
+                    if(!board[i][j].mine && !board[i][j].revealed) allSafeRevealed = false;
             if(allSafeRevealed && gameActive) {
                 gameActive = false;
-                messageDiv.innerHTML = "🏆 SELAMAT! Anda menang! 🎉✨ Tekan reset untuk bermain lagi.";
+                messageDiv.innerHTML = "🏆 SELAMAT! MENANG! 🎉";
                 safePlay('win');
                 updateUI();
-                return true;
             }
-            return false;
         }
 
         function updateUI() {
-            // hitung flag dan mine left
-            let flaggedMines = 0;
-            for(let i=0;i<ROWS;i++){
-                for(let j=0;j<COLS;j++){
-                    if(board[i][j].flag) flaggedMines++;
-                }
-            }
-            flagsUsedSpan.innerText = flaggedMines;
-            const minesRemaining = TOTAL_MINES - flaggedMines;
-            minesLeftSpan.innerText = minesRemaining >=0 ? minesRemaining : 0;
+            let flagged = 0;
+            for(let i=0;i<ROWS;i++)
+                for(let j=0;j<COLS;j++)
+                    if(board[i][j].flag) flagged++;
+            flagsUsedSpan.innerText = flagged;
+            minesLeftSpan.innerText = TOTAL_MINES - flagged;
             renderBoard();
         }
 
-        // render grid
         let currentSkin = 'classic';
         function renderBoard() {
-            boardDiv.style.gridTemplateColumns = `repeat(${COLS}, minmax(0, 1fr))`;
+            const colCount = COLS;
+            boardDiv.style.gridTemplateColumns = `repeat(${colCount}, minmax(42px, auto))`;
             boardDiv.innerHTML = '';
             for(let i=0;i<ROWS;i++){
                 for(let j=0;j<COLS;j++){
@@ -496,132 +382,111 @@
                     cellDiv.className = 'cell';
                     if(cell.revealed) cellDiv.classList.add('revealed');
                     if(cell.flag && !cell.revealed) cellDiv.classList.add('flagged');
-                    // tampilkan angka atau bom
                     if(cell.revealed) {
-                        if(cell.mine) {
-                            cellDiv.innerText = '💣';
-                            cellDiv.style.fontSize = '1.3rem';
-                        } else {
+                        if(cell.mine) cellDiv.innerText = '💣';
+                        else {
                             const val = cell.neighborMines;
-                            if(val === 0) cellDiv.innerText = '';
-                            else cellDiv.innerText = val;
-                            // warna angka
+                            cellDiv.innerText = val === 0 ? '' : val;
                             if(val===1) cellDiv.style.color = '#1f77b4';
                             else if(val===2) cellDiv.style.color = '#2c8c3e';
                             else if(val===3) cellDiv.style.color = '#d9534f';
                             else if(val>=4) cellDiv.style.color = '#b83d8f';
-                            else cellDiv.style.color = '#3c2a1f';
                         }
-                    } else {
-                        if(cell.flag) cellDiv.innerText = ''; // pseudo element
-                        else cellDiv.innerText = '';
                     }
-                    cellDiv.addEventListener('click', (function(r,c){
-                        return function() {
-                            if(!gameActive) return;
-                            if(firstMove) {
-                                firstMove = false;
-                                initAudio();
-                                safePlay('reset');
-                                // generate minefield
-                                board = placeMinesExcluding(r,c);
-                                gameActive = true;
-                                revealCell(r,c);
-                                updateUI();
-                                messageDiv.innerHTML = "🎮 Ayo bersihkan ranjau! 🎮";
-                            } else {
-                                if(board[r][c].flag) {
-                                    messageDiv.innerHTML = "❌ Lepas bendera dulu dengan klik kanan! ❌";
-                                    setTimeout(()=> {if(gameActive) messageDiv.innerHTML = "🔍 Kiri buka, kanan bendera";},700);
-                                    return;
-                                }
-                                revealCell(r,c);
-                            }
-                        };
-                    })(i,j));
-                    cellDiv.addEventListener('contextmenu', (function(r,c){
-                        return function(e) {
+                    // Event sentuh mobile
+                    (function(r,c){
+                        cellDiv.addEventListener('touchstart', (e) => {
                             e.preventDefault();
-                            if(!gameActive) return;
-                            if(firstMove) return; // sebelum first move tidak bisa flag
-                            toggleFlag(r,c);
-                        };
-                    })(i,j));
+                            pressTimer = setTimeout(() => {
+                                if(gameActive && !firstMove && !board[r][c].revealed) {
+                                    toggleFlag(r,c);
+                                }
+                                pressTimer = null;
+                            }, 500);
+                        });
+                        cellDiv.addEventListener('touchend', (e) => {
+                            e.preventDefault();
+                            if(pressTimer) {
+                                clearTimeout(pressTimer);
+                                pressTimer = null;
+                                if(gameActive) {
+                                    if(firstMove) {
+                                        firstMove = false;
+                                        initAudio();
+                                        safePlay('reset');
+                                        board = placeMinesExcluding(r,c);
+                                        gameActive = true;
+                                        revealCell(r,c);
+                                        updateUI();
+                                        messageDiv.innerHTML = "🎮 Ayo bersihkan ranjau! 🎮";
+                                    } else {
+                                        if(!board[r][c].revealed && !board[r][c].flag) {
+                                            revealCell(r,c);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        cellDiv.addEventListener('touchcancel', (e) => {
+                            if(pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+                        });
+                        // Untuk mouse (debug desktop)
+                        cellDiv.addEventListener('click', (e) => {
+                            if(window.innerWidth > 768) {
+                                if(firstMove) {
+                                    firstMove=false; initAudio(); board=placeMinesExcluding(r,c); gameActive=true; revealCell(r,c); updateUI();
+                                } else if(!board[r][c].revealed && !board[r][c].flag) revealCell(r,c);
+                            }
+                        });
+                        cellDiv.addEventListener('contextmenu', (e) => {
+                            e.preventDefault();
+                            if(window.innerWidth > 768 && !firstMove && gameActive && !board[r][c].revealed) toggleFlag(r,c);
+                        });
+                    })(i,j);
                     boardDiv.appendChild(cellDiv);
                 }
             }
-            // update skin class di container game panel
-            const panel = document.getElementById('gamePanel');
-            panel.classList.remove('skin-classic', 'skin-ocean', 'skin-forest', 'skin-neon');
-            panel.classList.add(`skin-${currentSkin}`);
+            document.getElementById('gamePanel').classList.remove('skin-classic','skin-ocean','skin-forest','skin-neon');
+            document.getElementById('gamePanel').classList.add(`skin-${currentSkin}`);
         }
 
         function resetGame() {
             gameActive = true;
             firstMove = true;
             flagsPlaced = 0;
-            // board kosong sementara (tanpa bom)
             board = initEmptyBoard();
             calcNeighbors(board);
-            messageDiv.innerHTML = "✨ Lahan baru! Klik petak untuk memulai ✨";
+            messageDiv.innerHTML = "✨ Lahan baru! Tekan petak untuk mulai ✨";
             updateUI();
             safePlay('reset');
         }
 
-        // ganti skin
         function setSkin(skinName) {
             currentSkin = skinName;
             const panel = document.getElementById('gamePanel');
-            panel.classList.remove('skin-classic', 'skin-ocean', 'skin-forest', 'skin-neon');
+            panel.classList.remove('skin-classic','skin-ocean','skin-forest','skin-neon');
             panel.classList.add(`skin-${skinName}`);
-            // update aktif tombol
             document.querySelectorAll('.skin-btn').forEach(btn => {
                 if(btn.getAttribute('data-skin') === skinName) btn.classList.add('active');
                 else btn.classList.remove('active');
             });
-            // efek suara segar
-            safePlay('reset');
+            renderBoard();
         }
 
-        // event listeners
-        resetBtn.addEventListener('click', () => {
-            resetGame();
-        });
-
-        // skin selector
+        resetBtn.addEventListener('click', resetGame);
         document.querySelectorAll('.skin-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const skinVal = btn.getAttribute('data-skin');
-                setSkin(skinVal);
-                // refresh tampilan board
-                renderBoard();
-            });
+            btn.addEventListener('click', () => setSkin(btn.getAttribute('data-skin')));
         });
 
-        // START: board kosong awal tanpa bom, firstMove true
         board = initEmptyBoard();
         calcNeighbors(board);
         gameActive = true;
         firstMove = true;
-        flagsPlaced = 0;
         setSkin('classic');
         updateUI();
-        messageDiv.innerHTML = "🌱 Selamat datang di Mineswapper! Klik area untuk membuka lahan luas 🌱";
-        // efek halaman siap
-        window.addEventListener('load',()=>{
-            initAudio(); // prepare audio
-            // hover anim halus
-        });
-        // Untuk sentuhan/suara pertama interaksi
-        function enableAudioOnFirstTouch() {
-            if(audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            document.body.removeEventListener('touchstart', enableAudioOnFirstTouch);
-            document.body.removeEventListener('click', enableAudioOnFirstTouch);
-        }
-        document.body.addEventListener('touchstart', enableAudioOnFirstTouch);
-        document.body.addEventListener('click', enableAudioOnFirstTouch);
+        messageDiv.innerHTML = "🌱 Mineswapper Mobile! Tekan lama untuk bendera 🌱";
+
+        document.body.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); });
     })();
 </script>
 </body>
