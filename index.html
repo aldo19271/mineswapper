@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mineswapper | Permata Pembersih Ranjau</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', 'Quicksand', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            animation: bgPulse 8s infinite alternate;
+        }
+
+        @keyframes bgPulse {
+            0% { background: linear-gradient(145deg, #1a472a, #0e2a1a); }
+            100% { background: linear-gradient(145deg, #2b5e3b, #1a3a22); }
+        }
+
+        .game-container {
+            background: rgba(30, 20, 15, 0.4);
+            backdrop-filter: blur(3px);
+            border-radius: 64px;
+            padding: 25px 20px 20px 20px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .game-panel {
+            background: #2d211a;
+            border-radius: 48px;
+            padding: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1f1612;
+            padding: 10px 20px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            color: #f9e6cf;
+            text-shadow: 0 2px 2px black;
+            box-shadow: inset 0 1px 3px #3e2a20, 0 5px 8px black;
+        }
+
+        .mine-counter, .flag-counter {
+            background: #000000aa;
+            backdrop-filter: blur(4px);
+            padding: 8px 18px;
+            border-radius: 32px;
+            font-weight: bold;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            font-family: monospace;
+            transition: 0.1s linear;
+        }
+
+        .reset-btn {
+            background: #e0a82b;
+            border: none;
+            font-size: 2rem;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s cubic-bezier(0.2, 1.3, 0.5, 1);
+            box-shadow: 0 5px 0 #8b5a2b;
+            color: #2f1e0e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reset-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #8b5a2b;
+        }
+
+        .skin-selector {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .skin-btn {
+            background: #3e2a24;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: #ffefcf;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 3px 0 #1a100c;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .skin-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #1a100c;
+        }
+
+        .skin-btn.active {
+            background: #f5b642;
+            color: #2a180c;
+            box-shadow: 0 0 12px #ffc107;
+        }
+
+        .board {
+            display: grid;
+            justify-content: center;
+            gap: 2px;
+            background-color: #50382a;
+            padding: 12px;
+            border-radius: 28px;
+            box-shadow: inset 0 0 0 2px #2f1e12, 0 12px 18px black;
+        }
+
+        .cell {
+            width: 36px;
+            height: 36px;
+            background: #b87c4f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            transition: 0.08s linear;
+            cursor: pointer;
+            box-shadow: inset 0 -2px 0 #6d3f1f, inset 0 2px 3px #ffdd99;
+            font-family: monospace;
+        }
+
+        /* skin 1: classic */
+        .skin-classic .cell {
+            background: #c6905b;
+        }
+        .skin-classic .cell.revealed {
+            background: #ebd5b3;
+            box-shadow: inset 0 0 0 1px #dbb067;
+            color: #4a2512;
+        }
+
+        /* skin 2: ocean */
+        .skin-ocean .cell {
+            background: #3f92b0;
+            box-shadow: inset 0 -2px 0 #1c5a70, inset 0 2px 3px #b3e4ff;
+        }
+        .skin-ocean .cell.revealed {
+            background: #b6e2f0;
+            color: #02455e;
+        }
+
+        /* skin 3: forest */
+        .skin-forest .cell {
+            background: #5f8742;
+            box-shadow: inset 0 -2px 0 #2a4f1a, inset 0 2px 3px #b8f28c;
+        }
+        .skin-forest .cell.revealed {
+            background: #cae6b2;
+            color: #1d4900;
+        }
+
+        /* skin 4: neon */
+        .skin-neon .cell {
+            background: #2c2e6b;
+            box-shadow: inset 0 -2px 0 #151747, inset 0 2px 3px #a4adff;
+            color: #eafdff;
+        }
+        .skin-neon .cell.revealed {
+            background: #dcddff;
+            color: #2f00b3;
+            text-shadow: 0 0 2px cyan;
+        }
+
+        .cell.flagged::before {
+            content: "⚑";
+            font-size: 1.5rem;
+            line-height: 1;
+            display: block;
+            text-shadow: 0 1px 0 darkred;
+        }
+        .cell.flagged {
+            background: #cf9f6e;
+            font-size: 0;
+        }
+        .cell.revealed.flagged::before {
+            content: "";
+        }
+        .cell.revealed {
+            cursor: default;
+            transform: scale(0.98);
+        }
+        .cell:active:not(.revealed) {
+            transform: scale(0.94);
+        }
+
+        .message-area {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffe5b4;
+            text-shadow: 0 2px 3px black;
+            letter-spacing: 1px;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 14px;
+            color: #d4bc8a;
+        }
+        @media (max-width: 550px) {
+            .cell { width: 30px; height: 30px; font-size: 1rem; }
+            .mine-counter, .flag-counter { font-size: 1.2rem; padding: 4px 12px; }
+            .reset-btn { width: 45px; height: 45px; font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game-panel" id="gamePanel">
+        <div class="header-stats">
+            <div class="mine-counter">💣 <span id="minesLeft">0</span></div>
+            <button class="reset-btn" id="resetGameBtn">🔄</button>
+            <div class="flag-counter">🚩 <span id="flagsUsed">0</span></div>
+        </div>
+        <div class="skin-selector">
+            <button class="skin-btn" data-skin="classic">🏔️ Klasik</button>
+            <button class="skin-btn" data-skin="ocean">🌊 Samudra</button>
+            <button class="skin-btn" data-skin="forest">🍃 Hutan</button>
+            <button class="skin-btn" data-skin="neon">💜 Neon</button>
+        </div>
+        <div id="boardContainer" class="board"></div>
+        <div class="message-area" id="gameMessage">✨ Klik petak untuk memulai! ✨</div>
+        <footer>◉ Kiri = Buka | Kanan = Pasang bendera 🚩</footer>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ---------- KONFIGURASI ----------
+        const ROWS = 14;
+        const COLS = 18;
+        const TOTAL_MINES = 45;   // cukup menantang, lahan luas
+
+        let board = [];       // 2d: { mine, revealed, flag, neighborMines }
+        let gameActive = true;
+        let firstMove = true;
+        let flagsPlaced = 0;
+
+        // DOM elements
+        const boardDiv = document.getElementById('boardContainer');
+        const minesLeftSpan = document.getElementById('minesLeft');
+        const flagsUsedSpan = document.getElementById('flagsUsed');
+        const resetBtn = document.getElementById('resetGameBtn');
+        const messageDiv = document.getElementById('gameMessage');
+
+        // sound effects (Web Audio API - nada pendek untuk efek segar)
+        let audioCtx = null;
+        function initAudio() {
+            if(audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        function playBeep(type) {
+            if(!audioCtx) {
+                initAudio();
+                if(audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+            if(!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now+0.5);
+            if(type === 'reveal') {
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.12, now);
+                osc.frequency.exponentialRampToValueAtTime(440, now+0.2);
+            } else if(type === 'flag') {
+                osc.frequency.value = 660;
+                gain.gain.setValueAtTime(0.1, now);
+                osc.frequency.exponentialRampToValueAtTime(550, now+0.15);
+            } else if(type === 'boom') {
+                osc.type = 'sawtooth';
+                osc.frequency.value = 120;
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now+0.7);
+                osc.frequency.exponentialRampToValueAtTime(40, now+0.6);
+            } else if(type === 'win') {
+                osc.type = 'triangle';
+                osc.frequency.value = 523.25;
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now+0.9);
+                osc.frequency.exponentialRampToValueAtTime(1046.5, now+0.5);
+            } else if(type === 'reset') {
+                osc.frequency.value = 360;
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now+0.2);
+            }
+            osc.start();
+            osc.stop(now+0.5);
+        }
+
+        function safePlay(type) {
+            try {
+                if(audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(()=> playBeep(type));
+                } else {
+                    playBeep(type);
+                }
+            } catch(e) { console.log(e); }
+        }
+
+        // Inisialisasi board kosong
+        function initEmptyBoard() {
+            return Array(ROWS).fill().map(() => Array(COLS).fill().map(() => ({
+                mine: false,
+                revealed: false,
+                flag: false,
+                neighborMines: 0
+            })));
+        }
+
+        // Hitung neighbor mines
+        function calcNeighbors(boardData) {
+            for(let i=0;i<ROWS;i++){
+                for(let j=0;j<COLS;j++){
+                    if(boardData[i][j].mine) {
+                        boardData[i][j].neighborMines = -1;
+                        continue;
+                    }
+                    let cnt = 0;
+                    for(let di=-1;di<=1;di++){
+                        for(let dj=-1;dj<=1;dj++){
+                            if(di===0 && dj===0) continue;
+                            const ni = i+di, nj = j+dj;
+                            if(ni>=0 && ni<ROWS && nj>=0 && nj<COLS && boardData[ni][nj].mine) cnt++;
+                        }
+                    }
+                    boardData[i][j].neighborMines = cnt;
+                }
+            }
+        }
+
+        // Taruh ranjau setelah first click (agar tidak kena klik pertama)
+        function placeMinesExcluding(firstRow, firstCol) {
+            let minesPlaced = 0;
+            const newBoard = initEmptyBoard();
+            while(minesPlaced < TOTAL_MINES) {
+                const row = Math.floor(Math.random() * ROWS);
+                const col = Math.floor(Math.random() * COLS);
+                if((row === firstRow && col === firstCol)) continue;
+                if(!newBoard[row][col].mine) {
+                    newBoard[row][col].mine = true;
+                    minesPlaced++;
+                }
+            }
+            calcNeighbors(newBoard);
+            return newBoard;
+        }
+
+        // Reveal sel (DFS untuk area kosong)
+        function revealCell(row, col) {
+            if(!gameActive) return false;
+            const cell = board[row][col];
+            if(cell.revealed) return false;
+            if(cell.flag) return false;
+            if(cell.mine) {
+                // game over
+                cell.revealed = true;
+                gameActive = false;
+                messageDiv.innerHTML = "💥 BOOM! Kalah... Tekan reset untuk bermain lagi 💥";
+                safePlay('boom');
+                revealAllMines();
+                updateUI();
+                return false;
+            }
+            // reveal
+            cell.revealed = true;
+            safePlay('reveal');
+            if(cell.neighborMines === 0) {
+                // Buka area sekitar
+                for(let di=-1;di<=1;di++){
+                    for(let dj=-1;dj<=1;dj++){
+                        const ni = row+di, nj = col+dj;
+                        if(ni>=0 && ni<ROWS && nj>=0 && nj<COLS && !board[ni][nj].revealed && !board[ni][nj].flag && !board[ni][nj].mine){
+                            revealCell(ni,nj);
+                        }
+                    }
+                }
+            }
+            updateUI();
+            checkWin();
+            return true;
+        }
+
+        function toggleFlag(row, col) {
+            if(!gameActive) return;
+            const cell = board[row][col];
+            if(cell.revealed) return;
+            if(!cell.flag && flagsPlaced >= TOTAL_MINES) {
+                messageDiv.innerHTML = "⚠️ Bendera sudah maksimal! ⚠️";
+                setTimeout(()=> {if(gameActive) messageDiv.innerHTML = "🎯 Lanjutkan bermain!";},800);
+                return;
+            }
+            if(!cell.flag) {
+                cell.flag = true;
+                flagsPlaced++;
+                safePlay('flag');
+            } else {
+                cell.flag = false;
+                flagsPlaced--;
+                safePlay('reset');
+            }
+            updateUI();
+            checkWin();
+        }
+
+        function revealAllMines() {
+            for(let i=0;i<ROWS;i++){
+                for(let j=0;j<COLS;j++){
+                    if(board[i][j].mine) board[i][j].revealed = true;
+                }
+            }
+        }
+
+        function checkWin() {
+            let allSafeRevealed = true;
+            for(let i=0;i<ROWS;i++){
+                for(let j=0;j<COLS;j++){
+                    const cell = board[i][j];
+                    if(!cell.mine && !cell.revealed) {
+                        allSafeRevealed = false;
+                        break;
+                    }
+                }
+            }
+            if(allSafeRevealed && gameActive) {
+                gameActive = false;
+                messageDiv.innerHTML = "🏆 SELAMAT! Anda menang! 🎉✨ Tekan reset untuk bermain lagi.";
+                safePlay('win');
+                updateUI();
+                return true;
+            }
+            return false;
+        }
+
+        function updateUI() {
+            // hitung flag dan mine left
+            let flaggedMines = 0;
+            for(let i=0;i<ROWS;i++){
+                for(let j=0;j<COLS;j++){
+                    if(board[i][j].flag) flaggedMines++;
+                }
+            }
+            flagsUsedSpan.innerText = flaggedMines;
+            const minesRemaining = TOTAL_MINES - flaggedMines;
+            minesLeftSpan.innerText = minesRemaining >=0 ? minesRemaining : 0;
+            renderBoard();
+        }
+
+        // render grid
+        let currentSkin = 'classic';
+        function renderBoard() {
+            boardDiv.style.gridTemplateColumns = `repeat(${COLS}, minmax(0, 1fr))`;
+            boardDiv.innerHTML = '';
+            for(let i=0;i<ROWS;i++){
+                for(let j=0;j<COLS;j++){
+                    const cell = board[i][j];
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell';
+                    if(cell.revealed) cellDiv.classList.add('revealed');
+                    if(cell.flag && !cell.revealed) cellDiv.classList.add('flagged');
+                    // tampilkan angka atau bom
+                    if(cell.revealed) {
+                        if(cell.mine) {
+                            cellDiv.innerText = '💣';
+                            cellDiv.style.fontSize = '1.3rem';
+                        } else {
+                            const val = cell.neighborMines;
+                            if(val === 0) cellDiv.innerText = '';
+                            else cellDiv.innerText = val;
+                            // warna angka
+                            if(val===1) cellDiv.style.color = '#1f77b4';
+                            else if(val===2) cellDiv.style.color = '#2c8c3e';
+                            else if(val===3) cellDiv.style.color = '#d9534f';
+                            else if(val>=4) cellDiv.style.color = '#b83d8f';
+                            else cellDiv.style.color = '#3c2a1f';
+                        }
+                    } else {
+                        if(cell.flag) cellDiv.innerText = ''; // pseudo element
+                        else cellDiv.innerText = '';
+                    }
+                    cellDiv.addEventListener('click', (function(r,c){
+                        return function() {
+                            if(!gameActive) return;
+                            if(firstMove) {
+                                firstMove = false;
+                                initAudio();
+                                safePlay('reset');
+                                // generate minefield
+                                board = placeMinesExcluding(r,c);
+                                gameActive = true;
+                                revealCell(r,c);
+                                updateUI();
+                                messageDiv.innerHTML = "🎮 Ayo bersihkan ranjau! 🎮";
+                            } else {
+                                if(board[r][c].flag) {
+                                    messageDiv.innerHTML = "❌ Lepas bendera dulu dengan klik kanan! ❌";
+                                    setTimeout(()=> {if(gameActive) messageDiv.innerHTML = "🔍 Kiri buka, kanan bendera";},700);
+                                    return;
+                                }
+                                revealCell(r,c);
+                            }
+                        };
+                    })(i,j));
+                    cellDiv.addEventListener('contextmenu', (function(r,c){
+                        return function(e) {
+                            e.preventDefault();
+                            if(!gameActive) return;
+                            if(firstMove) return; // sebelum first move tidak bisa flag
+                            toggleFlag(r,c);
+                        };
+                    })(i,j));
+                    boardDiv.appendChild(cellDiv);
+                }
+            }
+            // update skin class di container game panel
+            const panel = document.getElementById('gamePanel');
+            panel.classList.remove('skin-classic', 'skin-ocean', 'skin-forest', 'skin-neon');
+            panel.classList.add(`skin-${currentSkin}`);
+        }
+
+        function resetGame() {
+            gameActive = true;
+            firstMove = true;
+            flagsPlaced = 0;
+            // board kosong sementara (tanpa bom)
+            board = initEmptyBoard();
+            calcNeighbors(board);
+            messageDiv.innerHTML = "✨ Lahan baru! Klik petak untuk memulai ✨";
+            updateUI();
+            safePlay('reset');
+        }
+
+        // ganti skin
+        function setSkin(skinName) {
+            currentSkin = skinName;
+            const panel = document.getElementById('gamePanel');
+            panel.classList.remove('skin-classic', 'skin-ocean', 'skin-forest', 'skin-neon');
+            panel.classList.add(`skin-${skinName}`);
+            // update aktif tombol
+            document.querySelectorAll('.skin-btn').forEach(btn => {
+                if(btn.getAttribute('data-skin') === skinName) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            // efek suara segar
+            safePlay('reset');
+        }
+
+        // event listeners
+        resetBtn.addEventListener('click', () => {
+            resetGame();
+        });
+
+        // skin selector
+        document.querySelectorAll('.skin-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const skinVal = btn.getAttribute('data-skin');
+                setSkin(skinVal);
+                // refresh tampilan board
+                renderBoard();
+            });
+        });
+
+        // START: board kosong awal tanpa bom, firstMove true
+        board = initEmptyBoard();
+        calcNeighbors(board);
+        gameActive = true;
+        firstMove = true;
+        flagsPlaced = 0;
+        setSkin('classic');
+        updateUI();
+        messageDiv.innerHTML = "🌱 Selamat datang di Mineswapper! Klik area untuk membuka lahan luas 🌱";
+        // efek halaman siap
+        window.addEventListener('load',()=>{
+            initAudio(); // prepare audio
+            // hover anim halus
+        });
+        // Untuk sentuhan/suara pertama interaksi
+        function enableAudioOnFirstTouch() {
+            if(audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            document.body.removeEventListener('touchstart', enableAudioOnFirstTouch);
+            document.body.removeEventListener('click', enableAudioOnFirstTouch);
+        }
+        document.body.addEventListener('touchstart', enableAudioOnFirstTouch);
+        document.body.addEventListener('click', enableAudioOnFirstTouch);
+    })();
+</script>
+</body>
+</html>
